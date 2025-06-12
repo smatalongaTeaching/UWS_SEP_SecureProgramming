@@ -1,4 +1,4 @@
-package com.uws.secureprogramming.inputValidation;
+package com.uws.secureprogramming.AgeInputValidation;
 
 import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;

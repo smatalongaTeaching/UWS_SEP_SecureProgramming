@@ -1,4 +1,4 @@
-package com.uws.secureprogramming.inputValidation;
+package com.uws.secureprogramming.AgeInputValidation;
 
 public interface iAgeCheck {
     final String Adult = "Adult";

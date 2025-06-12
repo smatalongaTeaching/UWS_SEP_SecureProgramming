@@ -1,4 +1,4 @@
-package com.uws.secureprogramming.inputValidation;
+package com.uws.secureprogramming.AgeInputValidation;
 
 public class VulnerableAgeCheck implements iAgeCheck {
 
