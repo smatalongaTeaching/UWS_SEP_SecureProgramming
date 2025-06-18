@@ -1,5 +1,7 @@
 package com.uws.secureprogramming.dataLeak;
 
+import static org.junit.Assert.fail;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
@@ -19,31 +21,70 @@ class DatabaseConnectionTest {
         dbConnection = new DatabaseConnection(userDatabase);
     }
 
-    //TODO Follow excercise to shoe exception handling vulnerabilities
     
     @Test
     void testConnectWithNullUsername() {
-        dbConnection.connectToDatabase(null, "password");
-        // Expect error message and stack trace printed
+        try {
+            dbConnection.connectToDatabase(null, "password");
+        } catch (Exception e) {
+            
+            e.printStackTrace();
+            fail();
+        }
+        
     }
 
     @Test
     void testConnectWithNullPassword() {
-        dbConnection.connectToDatabase("mickey", null);
-        // Expect error message and stack trace printed
+        try {
+            dbConnection.connectToDatabase("mickey", null);
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail();
+        }
     }
 
     @Test
     void testUserNotFoundOrIncorrectPassword() {
-        dbConnection.connectToDatabase("pluto", "dog123");
-        dbConnection.connectToDatabase("donald", "wrongpass");
-        // Expect error message and stack trace printed
+        try {
+            dbConnection.connectToDatabase("pluto", "dog123");
+            dbConnection.connectToDatabase("donald", "wrongpass");
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail();
+        }
     }
 
     @Test
     void testSuccessfulConnection() {
-        dbConnection.connectToDatabase("goofy", "goof789");
-        dbConnection.connectToDatabase("minnie", "minnie321");
-        // Expect successful connection message printed
+        try {
+            dbConnection.connectToDatabase("goofy", "goof789");
+            dbConnection.connectToDatabase("minnie", "minnie321");
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail();
+        }
     }
+
+    @Test
+    void testAdminConnectionWithIncorrectPassword() {
+        try {
+            dbConnection.connectToDatabase("admin", "wrongpass");
+        } catch (Exception e) {
+            System.out.println("Caught expected exception: " + e.getMessage());
+        }
+    }
+
+    @Test
+    void testAdminConnectionWithCorrectPassword() {
+        try {
+            dbConnection.connectToDatabase("admin", "secr3tP@ss");
+            System.out.println("Admin connected successfully.");
+        } catch (Exception e) {
+            e.printStackTrace();
+            fail();
+        }
+
+    }
+
 }

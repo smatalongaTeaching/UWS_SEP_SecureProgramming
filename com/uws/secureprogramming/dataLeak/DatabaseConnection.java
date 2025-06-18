@@ -5,10 +5,11 @@ public class DatabaseConnection {
 
     public DatabaseConnection(UserDatabase users) {
         userDatabase = users;
+        userDatabase.addUser(new User("admin", "admin@disney.com", "secr3tP@ss"));
     }
 
 
-    public void connectToDatabase(String username, String password) {
+    public void connectToDatabase(String username, String password) throws Exception {
         try {
             // Simulating database connection
             
@@ -24,8 +25,7 @@ public class DatabaseConnection {
             System.out.println("Connected successfully to database as " + username);
         } catch (Exception e) {
             // Vulnerable error handling
-            System.out.println("Error details: " + e.getMessage());
-            e.printStackTrace();
+            throw e; 
         }
     }
 }
