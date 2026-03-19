@@ -1,0 +1,61 @@
+name: Verify Java Assignment
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    - name: Set up Java
+      uses: actions/setup-java@v4
+      with:
+        distribution: 'temurin'
+        java-version: '17'
+
+    - name: Download JUnit 5 Console Launcher
+      run: |
+        mkdir -p junit
+        JUNIT_VERSION=5.10.2
+        curl -L -o junit/junit-platform-console-standalone.jar \
+          https://repo1.maven.org/maven2/org/junit/platform/junit-platform-console-standalone/$JUNIT_VERSION/junit-platform-console-standalone-$JUNIT_VERSION.jar
+
+    - name: Compile ALL Java sources under com/uws
+      run: |
+        echo "Compiling all Java files under com/uws..."
+        mkdir -p out
+        find . -type f -path "./**/com/uws/**/*.java" > all_sources.txt
+        
+        if [ -s all_sources.txt ]; then
+          javac -cp junit/junit-platform-console-standalone.jar \
+                -d out @all_sources.txt
+        else
+          echo "No Java source files found under com/uws"
+          exit 1
+        fi
+
+    - name: Run ALL JUnit 5 Tests under com/uws
+      run: |
+        echo "Running JUnit 5 tests (scanning classpath)..."
+        java -jar junit/junit-platform-console-standalone.jar \
+          --class-path out \
+          --scan-class-path \
+          --include-package com.uws
+
+    - name: Check README.md updated
+      id: readme_check
+      run: |
+        if git diff --quiet HEAD^ HEAD -- README.md; then
+          echo "updated=false" >> $GITHUB_OUTPUT
+        else
+          echo "updated=true" >> $GITHUB_OUTPUT
+        fi
+
+    - name: Show README update result
+      run: echo "README updated? ${{ steps.readme_check.outputs.updated }}"
