@@ -19,34 +19,28 @@ jobs:
         distribution: 'temurin'
         java-version: '17'
 
-    - name: Download JUnit 5 Console Launcher
+    - name: Verify bundled JUnit Console Launcher
       run: |
-        set -euo pipefail
-        mkdir -p junit
-        JUNIT_VERSION=5.10.2
-        JUNIT_JAR="junit/junit-platform-console-standalone.jar"
-        PRIMARY_URL="https://repo1.maven.org/maven2/org/junit/platform/junit-platform-console-standalone/$JUNIT_VERSION/junit-platform-console-standalone-$JUNIT_VERSION.jar"
-        FALLBACK_URL="https://repo.maven.apache.org/maven2/org/junit/platform/junit-platform-console-standalone/$JUNIT_VERSION/junit-platform-console-standalone-$JUNIT_VERSION.jar"
+        JUNIT_JAR="lib/junit-platform-console-standalone-1.13.0-M3.jar"
 
-        echo "Downloading JUnit from primary URL..."
-        if ! curl -fL --retry 5 --retry-delay 2 --retry-all-errors -o "$JUNIT_JAR" "$PRIMARY_URL"; then
-          echo "Primary download failed. Trying fallback URL..."
-          curl -fL --retry 5 --retry-delay 2 --retry-all-errors -o "$JUNIT_JAR" "$FALLBACK_URL"
+        if [ ! -f "$JUNIT_JAR" ]; then
+          echo "Missing JUnit jar: $JUNIT_JAR"
+          exit 1
         fi
 
-        echo "Validating downloaded JAR..."
+        echo "Using bundled JUnit jar: $JUNIT_JAR"
         jar tf "$JUNIT_JAR" > /dev/null
-        echo "JUnit JAR downloaded and validated successfully."
 
     - name: Compile ALL Java sources under com/uws
       run: |
         echo "Compiling all Java files under com/uws..."
+        JUNIT_JAR="lib/junit-platform-console-standalone-1.13.0-M3.jar"
         mkdir -p out
         find com/uws -type f -name "*.java" | sort > all_sources.txt
         echo "Found $(wc -l < all_sources.txt) Java source file(s)."
         
         if [ -s all_sources.txt ]; then
-          javac -cp junit/junit-platform-console-standalone.jar \
+          javac -cp "$JUNIT_JAR" \
                 -d out @all_sources.txt
         else
           echo "No Java source files found under com/uws"
@@ -56,7 +50,7 @@ jobs:
     - name: Run ALL JUnit 5 Tests under com/uws
       run: |
         echo "Running JUnit 5 tests (scanning classpath)..."
-        java -jar junit/junit-platform-console-standalone.jar \
+        java -jar lib/junit-platform-console-standalone-1.13.0-M3.jar \
           --class-path out \
           --scan-class-path \
           --include-package com.uws
