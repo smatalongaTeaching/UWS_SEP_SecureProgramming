@@ -30,7 +30,8 @@ jobs:
       run: |
         echo "Compiling all Java files under com/uws..."
         mkdir -p out
-        find . -type f -path "./**/com/uws/**/*.java" > all_sources.txt
+        find com/uws -type f -name "*.java" | sort > all_sources.txt
+        echo "Found $(wc -l < all_sources.txt) Java source file(s)."
         
         if [ -s all_sources.txt ]; then
           javac -cp junit/junit-platform-console-standalone.jar \
